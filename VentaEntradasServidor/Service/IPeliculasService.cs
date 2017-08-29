@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using VentaEntradasServidor.Models;
 
-namespace VentaEntradasServidor.Repository {
-    public interface IPeliculasRepository {
+namespace VentaEntradasServidor.Service {
+    public interface IPeliculasService {
 
         Pelicula Create(Pelicula pelicula);
         Pelicula Read(long id);

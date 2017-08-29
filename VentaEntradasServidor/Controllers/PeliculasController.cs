@@ -8,25 +8,30 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using VentaEntradasServidor.Excepciones;
 using VentaEntradasServidor.Models;
+using VentaEntradasServidor.Service;
 
 namespace VentaEntradasServidor.Controllers
 {
     public class PeliculasController : ApiController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IPeliculasService peliculasService;
+        public PeliculasController(IPeliculasService peliculasService) {
+            this.peliculasService = peliculasService;
+        }
 
         // GET: api/Peliculas
         public IQueryable<Pelicula> GetPeliculas()
         {
-            return db.Peliculas;
+            return peliculasService.ReadAll();
         }
 
         // GET: api/Peliculas/5
         [ResponseType(typeof(Pelicula))]
         public IHttpActionResult GetPelicula(long id)
         {
-            Pelicula pelicula = db.Peliculas.Find(id);
+            Pelicula pelicula = peliculasService.Read(id);
             if (pelicula == null)
             {
                 return NotFound();
@@ -48,23 +53,16 @@ namespace VentaEntradasServidor.Controllers
             {
                 return BadRequest();
             }
-
-            db.Entry(pelicula).State = EntityState.Modified;
-
+            
             try
             {
-                db.SaveChanges();
+                peliculasService.Update(id, pelicula);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PeliculaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+              
+                return NotFound();
+                
             }
 
             return StatusCode(HttpStatusCode.NoContent);
@@ -78,9 +76,7 @@ namespace VentaEntradasServidor.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            db.Peliculas.Add(pelicula);
-            db.SaveChanges();
+            pelicula = peliculasService.Create(pelicula);            
 
             return CreatedAtRoute("DefaultApi", new { id = pelicula.Id }, pelicula);
         }
@@ -89,30 +85,16 @@ namespace VentaEntradasServidor.Controllers
         [ResponseType(typeof(Pelicula))]
         public IHttpActionResult DeletePelicula(long id)
         {
-            Pelicula pelicula = db.Peliculas.Find(id);
-            if (pelicula == null)
-            {
+            Pelicula pelicula;
+            try {
+                pelicula = peliculasService.Delete(id);
+            }
+            catch(NoEncontradoException e) {
                 return NotFound();
             }
-
-            db.Peliculas.Remove(pelicula);
-            db.SaveChanges();
-
+            
             return Ok(pelicula);
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        private bool PeliculaExists(long id)
-        {
-            return db.Peliculas.Count(e => e.Id == id) > 0;
-        }
+                
     }
 }

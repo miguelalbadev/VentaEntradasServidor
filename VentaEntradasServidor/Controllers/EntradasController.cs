@@ -7,26 +7,33 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
+using VentaEntradasServidor.Excepciones;
 using VentaEntradasServidor.Models;
+using VentaEntradasServidor.Service;
 
 namespace VentaEntradasServidor.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class EntradasController : ApiController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IEntradasService entradasService;
+        public EntradasController(IEntradasService entradasService) {
+            this.entradasService = entradasService;
+        }
 
         // GET: api/Entradas
         public IQueryable<Entrada> GetEntradas()
         {
-            return db.Entradas;
+            return entradasService.ReadAll();
         }
 
         // GET: api/Entradas/5
         [ResponseType(typeof(Entrada))]
         public IHttpActionResult GetEntrada(long id)
         {
-            Entrada entrada = db.Entradas.Find(id);
+            Entrada entrada = entradasService.Read(id);
             if (entrada == null)
             {
                 return NotFound();
@@ -48,23 +55,15 @@ namespace VentaEntradasServidor.Controllers
             {
                 return BadRequest();
             }
-
-            db.Entry(entrada).State = EntityState.Modified;
-
+                        
             try
             {
-                db.SaveChanges();
+                entradasService.Update(id, entrada);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EntradaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
+                
             }
 
             return StatusCode(HttpStatusCode.NoContent);
@@ -78,10 +77,8 @@ namespace VentaEntradasServidor.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            db.Entradas.Add(entrada);
-            db.SaveChanges();
-
+            entrada = entradasService.Create(entrada);
+            
             return CreatedAtRoute("DefaultApi", new { id = entrada.Id }, entrada);
         }
 
@@ -89,30 +86,16 @@ namespace VentaEntradasServidor.Controllers
         [ResponseType(typeof(Entrada))]
         public IHttpActionResult DeleteEntrada(long id)
         {
-            Entrada entrada = db.Entradas.Find(id);
-            if (entrada == null)
-            {
+            Entrada entrada;
+            try {
+                entrada = entradasService.Delete(id);
+            }
+            catch(NoEncontradoException e) {
                 return NotFound();
             }
-
-            db.Entradas.Remove(entrada);
-            db.SaveChanges();
-
+            
             return Ok(entrada);
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        private bool EntradaExists(long id)
-        {
-            return db.Entradas.Count(e => e.Id == id) > 0;
-        }
+                
     }
 }

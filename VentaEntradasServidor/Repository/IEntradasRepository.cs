@@ -9,7 +9,7 @@ namespace VentaEntradasServidor.Repository {
 
     public interface IEntradasRepository {
         Entrada Create(Entrada entrada);
-        Entrada Read(long Id);
+        Entrada Read(long id);
         IQueryable<Entrada> ReadAll();
         void Update(long id, Entrada entrada);
         Entrada Delete(long id);

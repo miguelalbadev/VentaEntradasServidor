@@ -26,11 +26,13 @@ namespace VentaEntradasServidor.Service {
         }
 
         public IQueryable<Entrada> ReadAll() {
-            throw new NotImplementedException();
+            IQueryable<Entrada> entradas;
+            entradas = entradasRepository.ReadAll();
+            return entradas;
         }
 
         public void Update(long id, Entrada entrada) {
-            throw new NotImplementedException();
+            entradasRepository.Update(id, entrada);
         }
     }
 }

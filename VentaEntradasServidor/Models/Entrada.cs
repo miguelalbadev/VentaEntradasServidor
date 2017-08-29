@@ -11,5 +11,6 @@ namespace VentaEntradasServidor.Models {
         public DateTime FechaEntrada { get; set; }
         public string Codigo { get; set; }
         public float Precio { get; set; }
+        public string Pelicula { get; set; }
     }
 }
