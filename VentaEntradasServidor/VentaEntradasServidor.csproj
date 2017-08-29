@@ -254,6 +254,8 @@
     <Compile Include="Repository\IPeliculasRepository.cs" />
     <Compile Include="Repository\PeliculasRepository.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
+    <Compile Include="Service\EntradasService.cs" />
+    <Compile Include="Service\IEntradasService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
