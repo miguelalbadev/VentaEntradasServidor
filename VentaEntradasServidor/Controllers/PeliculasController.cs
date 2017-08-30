@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 using VentaEntradasServidor.Excepciones;
 using VentaEntradasServidor.Models;
@@ -14,6 +15,7 @@ using VentaEntradasServidor.Service;
 
 namespace VentaEntradasServidor.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class PeliculasController : ApiController
     {
         private IPeliculasService peliculasService;
